@@ -123,8 +123,7 @@ class OrderManager {
             return
         }
         self.loco.sales.enumerated().map { index, item in
-            let value = Die()
-            self.addOrder(value: value)
+            self.addOrder(value: item)
         }
         self.loco.sales.removeAll()
     }
