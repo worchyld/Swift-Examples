@@ -11,6 +11,10 @@ enum LocoState: Int, CaseIterable {
     }
 }
 
+public func Die() -> Int {
+    return Int.random(in: 1...6)
+}
+
 class Locomotive: Identifiable {
     internal let id: UUID = UUID()
     var initialOrder: Int?
@@ -29,6 +33,9 @@ class Locomotive: Identifiable {
     
     var isFull: Bool {
         return ((self.orders.count + self.sales.count) >= self.capacity)
+    }
+    var isEmpty: Bool {
+        return ((self.orders.count + self.sales.count) == 0)
     }
 }
 
@@ -49,11 +56,11 @@ class OrderManager {
     
     func setInitialOrder(value: Int) {
         guard self.loco.state == .inactive else {
-            print ("Loco is active or older")
+            print ("Loco needs to be inactive")
             return
         }
         self.loco.initialOrder = value
-        self.loco.state = .hasInitialOrder
+        self.loco.state.next()
     }
     
     func moveInitialOrderToOrder() {
@@ -65,9 +72,11 @@ class OrderManager {
             print ("Initial Order is nil")
             return
         }
+        self.loco.state.next()
+
         addOrder(value: value)
         self.loco.initialOrder = nil
-        self.loco.state = .active
+
         print (self.loco.state)
         
         // Unlock the next one
@@ -85,25 +94,30 @@ class OrderManager {
         self.loco.orders.append(value)
     }
     
-    func transferToSale(value: Int) {
+    func transferOrderToSale(index: Int) {
         guard self.loco.state == .active else {
             print ("Loco isn't active")
             return
         }
-        guard !self.loco.isFull else {
-            print ("Loco is full")
+        if self.loco.orders.isEmpty {
+            print ("No orders to transfer")
+            return
+        }
+        if (index > self.loco.orders.count) {
+            print ("Out of bounds")
+            return
+        }
+        if (index > self.loco.orders.endIndex) {
+            print ("Out of bounds")
             return
         }
         
-        guard let index = self.loco.orders.firstIndex(of: value) else {
-            print ("Cannot find index of order")
-            return
-        }
+        let value = self.loco.orders[index]
         self.loco.sales.append(value)
         self.loco.orders.remove(at: index)
     }
     
-    func transferAllToOrders() {
+    func transferAllSalesToOrders() {
         guard self.loco.state == .active else {
             print ("Loco isn't active")
             return
@@ -111,6 +125,11 @@ class OrderManager {
         guard !self.loco.isFull else {
             print ("Loco is full")
             return
+        }
+        self.loco.sales.enumerated().map { index, item in
+            let value = Die()
+            self.addOrder(value: value)
+            self.loco.sales.remove(at: index)
         }
     }
     
@@ -124,9 +143,16 @@ var locos : [Locomotive] = [
 
 var firstLoco = locos.first! as Locomotive
 let om = OrderManager.init(loco: firstLoco)
-om.setInitialOrder(value: 1)
-//print (locos)
 
+om.setInitialOrder(value: 1)
 om.moveInitialOrderToOrder()
+om.addOrder(value: 3)
+om.addOrder(value: 5)
+
+om.transferOrderToSale(index: 1)
+om.transferOrderToSale(index: 1)
 
 print (locos)
+
+
+
