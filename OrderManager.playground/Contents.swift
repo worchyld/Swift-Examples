@@ -122,15 +122,11 @@ class OrderManager {
             print ("Loco isn't active")
             return
         }
-        guard !self.loco.isFull else {
-            print ("Loco is full")
-            return
-        }
         self.loco.sales.enumerated().map { index, item in
             let value = Die()
             self.addOrder(value: value)
-            self.loco.sales.remove(at: index)
         }
+        self.loco.sales.removeAll()
     }
     
     
@@ -151,6 +147,8 @@ om.addOrder(value: 5)
 
 om.transferOrderToSale(index: 1)
 om.transferOrderToSale(index: 1)
+
+om.transferAllSalesToOrders()
 
 print (locos)
 
