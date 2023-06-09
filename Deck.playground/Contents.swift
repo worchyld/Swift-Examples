@@ -39,6 +39,13 @@ struct Card: Identifiable, Equatable {
     let name: String
 }
 
+extension Card : CustomStringConvertible {
+    var description: String {
+        let idString = String(describing: self.id)
+        return ("ID: \(idString), name: \(self.name)")
+    }
+}
+
 
 var deck = Deck<Card>()
 deck.push(Card(name: "Card 1"))
@@ -48,3 +55,14 @@ deck.push(Card(name: "Card 4"))
 
 let card = deck.pop()
 print (card?.name ?? "No card found")
+
+class Parent {
+    var cards : Deck<Card>
+    
+    init(cards: Deck<Card>) {
+        self.cards = cards
+    }
+}
+
+let p = Parent(cards: deck)
+print (p.cards)
