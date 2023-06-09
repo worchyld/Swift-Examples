@@ -1,21 +1,18 @@
 import Foundation
 
-protocol DeckDelegate: AnyObject {
-    associatedtype Element
-    var size: Int { get }
-    var isEmpty: Bool { get }
-    var cards:[Element] { get set }
-    func push(_ element: Element)
-    func pop() -> Element?
-    func shuffle()
-}
-
-class Deck<Element> : DeckDelegate {
+// Generic deck
+class Deck<Element> {
     var size: Int {
         return cards.count
     }
     var isEmpty: Bool {
         return (cards.count == 0)
+    }
+
+    var topItem: Element? {
+        get {
+            return cards.isEmpty ? nil : cards[cards.count - 1]
+        }
     }
     
     internal var cards: [Element] = []
@@ -27,48 +24,18 @@ class Deck<Element> : DeckDelegate {
     func pop() -> Element? {
         cards.popLast()
     }
+            
+    func find(_ card: Element) -> Int? where Element: Equatable {
+        cards.firstIndex(of: card)
+    }
     
     func shuffle() {
         cards.shuffle()
     }
 }
 
-class TrainDeck : Deck<Card> {
-    var rust = 1
-}
-
-//struct Deck<Element> : DeckDelegate {
-//    var size: Int {
-//        return cards.count
-//    }
-//    var isEmpty: Bool {
-//        return (cards.count == 0)
-//    }
-//
-//    internal var cards: [Element] = []
-//
-//    mutating func push(_ element: Element) {
-//        cards.append(element)
-//    }
-//
-//    mutating func pop() -> Element? {
-//        cards.popLast()
-//    }
-//
-//    mutating func shuffle() {
-//        cards.shuffle()
-//    }
-//}
-
-
-extension Deck {
-    // read only
-    var topItem: Element? {
-        return cards.isEmpty ? nil : cards[cards.count - 1]
-    }
-}
-
-struct Card {
+struct Card: Identifiable, Equatable {
+    internal let id: UUID = UUID()
     let name: String
 }
 
